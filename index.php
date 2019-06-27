@@ -8,15 +8,14 @@
  <body>
 
    <?php require 'logic.php'; ?>
-   <?php $a = new Job("a"); ?>
-   
+
    <div class="container">
      <div class="jumbotron">
        <h1>On The Beach: Coding Exercise</h1>
        <p>Hello World</p>
-       <?php echo "<p>" . $a->getName() . "</p>"; ?>
      </div>
    </div>
 
  </body>
+
 </html>
