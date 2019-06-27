@@ -73,13 +73,28 @@
       // If we have neither circular dependency nor self dependency, then
       // we can move on to sorting the jobs into the correct order.
 
-      sortJobs($dependentJobs, $independentJobs);
+      $outputString = sortJobs($independentJobs, $dependentJobs);
+
+      return $outputString;
     }
 
 
     return $outputString;
   }
 
+
+  function fillArrays($arrayA, $arrayB, $dJ, $iJ)
+  {
+    for ($i = 0; $i < strlen($dJ) - 1; $i += 3)
+    {
+      array_push($arrayA, substr($dJ, $i, 1));
+    }
+
+    for ($i = 0; $i < strlen($iJ) - 1; $i++)
+    {
+      array_push($arrayB, substr($iJ, $i, 1));
+    }
+  }
 
   function checkCircular($dJ)
   {
@@ -179,6 +194,49 @@
   function errorSelfDepend()
   {
 
+  }
+
+  function sortJobs($iJ, $dJ)
+  {
+    $a = array();
+    $b = array();
+
+    $result = '';
+
+    fillArrays($a, $b, $dJ, $iJ);
+
+    for ($i = 0; $i < count($a) - 1; $i++)
+    {
+      $jobPos_ = strpos($dJ, $a[i] . '>');
+      $kappa = substr($dJ, $jobPos_ + 2, 1);
+
+      if (array_search($kappa, $b))
+      {
+        $i++;
+      } else
+      {
+        if (array_search($kappa, $a) < $i)
+        {
+          $i++;
+        } else
+        {
+          unset($a[array_search($kappa, $a)]);
+          array_splice($a, $i, 0, $kappa);
+        }
+      }
+    }
+
+    foreach ($b as $job)
+    {
+      $result .= $job;
+    }
+
+    foreach ($a as $job)
+    {
+      $result .= $job;
+    }
+
+    return $result;
   }
 
  ?>
