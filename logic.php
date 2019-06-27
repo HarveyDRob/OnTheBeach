@@ -25,7 +25,7 @@
   {
 
     $outputString = '';
-    $inpedendentJobs = $inputString;
+    $independentJobs = $inputString;
     $dependentJobs = '';
 
     // Search the input for ">", remove it along with one character either side
@@ -62,20 +62,24 @@
         // If it is a circular dependency, then we should let the user know that
         // this is an error.
         errorCircular();
+
+        // TODO Fill out errorCircular()
+        $outputString = 'This has a circular dependency, and so cannot be sorted.';
       }
 
       // We can also check for jobs depending on themselves at this point.
       if(checkSelfDepend($dependentJobs))
       {
         errorSelfDepend();
+
+        // TODO Fill out errorSelfDepend()
+        $outputString = 'This has a self dependency, and so cannot be sorted.';
       }
 
       // If we have neither circular dependency nor self dependency, then
       // we can move on to sorting the jobs into the correct order.
 
       $outputString = sortJobs($independentJobs, $dependentJobs);
-
-      return $outputString;
     }
 
 
@@ -83,14 +87,14 @@
   }
 
 
-  function fillArrays($arrayA, $arrayB, $dJ, $iJ)
+  function fillArrays(&$arrayA, &$arrayB, &$dJ, &$iJ)
   {
     for ($i = 0; $i < strlen($dJ) - 1; $i += 3)
     {
       array_push($arrayA, substr($dJ, $i, 1));
     }
 
-    for ($i = 0; $i < strlen($iJ) - 1; $i++)
+    for ($i = 0; $i < strlen($iJ); $i++)
     {
       array_push($arrayB, substr($iJ, $i, 1));
     }
@@ -133,8 +137,8 @@
     // we have circular dependency.
     // We can now sort the contents of these arrays alphabetically, then compare
     // them to see if this is the case.
-    $a = sort($a);
-    $b = sort($b);
+    sort($a);
+    sort($b);
 
     // if they are different lengths then we know straight away that they are
     // different.
@@ -155,7 +159,7 @@
     return $isCircular;
   }
 
-  function separateJobs($iJ, $dJ)
+  function separateJobs(&$iJ, &$dJ)
   {
     while (strpos($iJ, '>') !== false)
     {
@@ -207,7 +211,7 @@
 
     for ($i = 0; $i < count($a) - 1; $i++)
     {
-      $jobPos_ = strpos($dJ, $a[i] . '>');
+      $jobPos_ = strpos($dJ, $a[$i] . '>');
       $kappa = substr($dJ, $jobPos_ + 2, 1);
 
       if (array_search($kappa, $b))
