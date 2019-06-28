@@ -68,7 +68,7 @@
       }
 
       // We can also check for jobs depending on themselves at this point.
-      if(checkSelfDepend($dependentJobs))
+      else if(checkSelfDepend($dependentJobs))
       {
         errorSelfDepend();
 
@@ -78,12 +78,15 @@
 
       // If we have neither circular dependency nor self dependency, then
       // we can move on to sorting the jobs into the correct order.
+      else
+      {
+        $outputString = sortJobs($independentJobs, $dependentJobs);
+      }
 
-      $outputString = sortJobs($independentJobs, $dependentJobs);
     }
 
-
-    return $outputString;
+    // return checkSelfDepend($dependentJobs);
+      return $outputString;
   }
 
 
@@ -105,6 +108,7 @@
     $isCircular = false;
     $a = array();
     $b = array();
+    $c = array();
     // $dJ will be at least 3 characters long (e.g. $dJ == "b>c").
     // First we need to push each job that is dependent on another job into $a.
     for ($i = 0; $i < strlen($dJ) -1; $i += 3)
@@ -112,24 +116,22 @@
       array_push($a, substr($dJ, $i, 1));
     }
 
-    // If one of these jobs depends on a job which isn't in this array, then
-    // remove it from the array.
-    for ($i = 2; $i < strlen($dJ); $i+=3)
+    // Search $a for jobs which depend on jobs in $a. Add them to $c.
+    for ($i = 2; $i < strlen($dJ); $i += 3)
     {
       $k = substr($dJ, $i, 1);
 
-      if (!array_search($k, $a))
+      if (array_search($k, $a) !== false)
       {
-        $n = substr($dJ, $i - 2, 1);
-        $nPos = array_search($n, $a);
-        unset($a[$nPos]);
+        array_push($c, substr($dJ, $i - 2, 1));
       }
     }
 
-    // Now make an array of each job that the jobs in $a are dependent on.
-    foreach ($a as $job)
+    // Now make an array of each job that the jobs in $c are dependent on.
+    foreach ($c as $job)
     {
-      $jobPos = strpos($dJ, $job);
+      $job_ = $job . '>';
+      $jobPos = strpos($dJ, $job_);
       array_push($b, substr($dJ, $jobPos + 2));
     }
 
@@ -137,18 +139,18 @@
     // we have circular dependency.
     // We can now sort the contents of these arrays alphabetically, then compare
     // them to see if this is the case.
-    sort($a);
+    sort($c);
     sort($b);
 
     // if they are different lengths then we know straight away that they are
     // different.
-    if (count($a) == count($b))
+    if (count($c) == count($b))
     {
       if (!$isCircular)
       {
-        for ($i = 0; $i < count($a); $i++)
+        for ($i = 0; $i < count($c) - 1; $i++)
         {
-          if ($a[$i] != $b[$i])
+          if ($c[$i] != $b[$i])
           {
             $isCircular = true;
           }
