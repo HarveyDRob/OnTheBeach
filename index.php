@@ -7,7 +7,7 @@
  </head>
  <body>
 
-   <?php require 'jobSorter.php'; ?>
+   <?php require 'JobSorter.php'; ?>
    <?php $jobSorter = new JobSorter; ?>
    <div class="container">
      <div class="jumbotron">

@@ -19,13 +19,16 @@
     {
       $this->isCircular = false;
       $this->isSelfDepend = false;
+      $this->arrayDependentJobs = [];
+      $this->arrayCircDependentJobs = [];
+      $this->arrayDependedJobs = [];
     }
 
 
     function orderJobs()
     {
       $this->reset();
-      $this->separateJobs($this->independentJobs, $this->dependentJobs);
+      $this->separateJobs();
 
       if (strlen($this->dependentJobs) == 0)
       {
@@ -67,8 +70,11 @@
       $this->arrayDependedJobs = [];
     }
 
-    function separateJobs(&$independentJobs_, &$dependentJobs_)
+    function separateJobs()
     {
+      $independentJobs_ = $this->independentJobs;
+      $dependentJobs_ = $this->dependentJobs;
+
       while (strpos($independentJobs_, '>') !== false)
       {
         $target = substr($independentJobs_, strpos($independentJobs_, '>') -1, 3);
@@ -96,11 +102,8 @@
 
     function checkCircular()
     {
-      // $dJ will be at least 3 characters long (e.g. $dJ == "b>c").
-      // First we need to push each job that is dependent on another job into $a.
       $this->fillArray($this->arrayDependentJobs, 0, strlen($this->dependentJobs) -1, 3, $this->dependentJobs);
 
-      // Search $a for jobs which depend on jobs in $a. Add them to $c.
       for ($i = 2; $i < strlen($this->dependentJobs); $i += 3)
       {
         $k = substr($this->dependentJobs, $i, 1);
@@ -111,7 +114,6 @@
         }
       }
 
-      // Now make an array of each job that the jobs in $c are dependent on.
       foreach ($this->arrayCircDependentJobs as $job)
       {
         $job_ = $job . '>';
@@ -119,15 +121,9 @@
         array_push($this->arrayDependedJobs, substr($this->dependentJobs, $jobPos + 2));
       }
 
-      // Now we have arrays $a and $b, if they contain the exact same jobs, then
-      // we have circular dependency.
-      // We can now sort the contents of these arrays alphabetically, then compare
-      // them to see if this is the case.
       sort($this->arrayCircDependentJobs);
       sort($this->arrayDependedJobs);
 
-      // if they are different lengths then we know straight away that they are
-      // different.
       if (count($this->arrayCircDependentJobs) == count($this->arrayDependedJobs))
       {
         if (!$this->isCircular)
@@ -213,6 +209,18 @@
 
       return $result;
     }
+
+
+    function getIndependentJobs()
+    {
+      return $this->independentJobs;
+    }
+
+    function getDependentJobs()
+    {
+      return $this->dependentJobs;
+    }
+
 
   }
 
